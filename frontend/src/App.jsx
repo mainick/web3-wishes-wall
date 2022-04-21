@@ -21,7 +21,7 @@ function App() {
     [walletAccount, dispatchWalletAccount]
   );
 
-  const wishesWall = async () => {
+  const retrieveTotalWishes = async () => {
     try {
       const { ethereum } = window;
       if (!ethereum) {
@@ -62,6 +62,8 @@ function App() {
       if (accounts.length > 0) {
         const account = accounts[0];
         dispatchWalletAccount({ type: 'SET_WALLET_ACCOUNT', payload: account });
+
+        retrieveTotalWishes();
       } else {
         toast('No authorized accounts found', {
           position: toast.POSITION.TOP_RIGHT,
@@ -80,7 +82,6 @@ function App() {
 
   useEffect(() => {
     checkIfWalletIsConnected();
-    wishesWall();
   }, []);
 
   return (
@@ -88,7 +89,7 @@ function App() {
       <div className="container mx-auto py-4">
         <Wall />
 
-        <footer className="footer footer-center bg-primary p-10 text-primary-content">
+        <footer className="footer footer-center mt-4 bg-primary p-10 text-primary-content">
           <div>
             <img alt="Wishes Wall" src={Like} className="h-12 w-12 fill-current" />
             <p>

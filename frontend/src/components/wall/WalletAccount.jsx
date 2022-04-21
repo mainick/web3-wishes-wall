@@ -11,6 +11,7 @@ const WalletAccount = () => {
   const [walletAccount, dispatchWalletAccount] = useContext(SMWishesWallContext);
   const [loadingMining, setLoadingMining] = useState(false);
   const [wishTnxHash, setWishTnxHash] = useState('');
+  const [wishMessage, setWishMessage] = useState('');
 
   const connectWallet = async () => {
     try {
@@ -44,7 +45,11 @@ const WalletAccount = () => {
     }
   };
 
-  const wishesWall = async () => {
+  const handleChangeWishMessage = (e) => {
+    setWishMessage(e.target.value);
+  };
+
+  const handleSendWish = async () => {
     try {
       const { ethereum } = window;
       if (!ethereum) {
@@ -61,7 +66,7 @@ const WalletAccount = () => {
       const signer = provider.getSigner();
       const wishesWallContract = new ethers.Contract(contractAddress, contractAbi, signer);
 
-      const wishTnx = await wishesWallContract.wish();
+      const wishTnx = await wishesWallContract.wish(wishMessage);
       console.log('Mining...', wishTnx.hash);
       setWishTnxHash(wishTnx.hash);
 
@@ -96,10 +101,17 @@ const WalletAccount = () => {
             <div className="account">
               <div className="font-bold">Your account:</div>
               <div className="text-gray-500">{walletAccount.currentAccount}</div>
+              <textarea
+                name="wishMessage"
+                value={wishMessage}
+                onChange={handleChangeWishMessage}
+                className="textarea-bordered textarea w-full"
+                placeholder="Write your wish here..."
+              />
               <button
                 type="button"
                 className={`btn btn-primary btn-block ${loadingMining && 'btn-disabled'}`}
-                onClick={wishesWall}>
+                onClick={handleSendWish}>
                 Send your wish
               </button>
               {loadingMining && (
@@ -111,7 +123,7 @@ const WalletAccount = () => {
                       target="_blank"
                       className="link-neutral link"
                       rel="noopener noreferrer">
-                      go to transaction{' '}
+                      your wishes are granted by the smart contract' '}
                       <BiLinkExternal className="inline-block h-4 w-4 stroke-current" />
                     </a>
                   )}
