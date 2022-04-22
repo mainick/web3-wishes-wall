@@ -62,7 +62,7 @@ function App() {
 
   useEffect(() => {
     checkIfWalletIsConnected();
-  }, []);
+  }, [checkIfWalletIsConnected]);
 
   return (
     <SMWishesWallContext.Provider value={valueWalletAccountContext}>
