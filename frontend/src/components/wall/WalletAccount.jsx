@@ -125,7 +125,7 @@ const WalletAccount = () => {
                       target="_blank"
                       className="link-neutral link"
                       rel="noopener noreferrer">
-                      your wishes are granted by the smart contract' '}
+                      your wishes are granted by the smart contract
                       <BiLinkExternal className="inline-block h-4 w-4 stroke-current" />
                     </a>
                   )}
