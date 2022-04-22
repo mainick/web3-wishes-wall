@@ -13,25 +13,38 @@ contract WishesWall {
 
     uint256 totalWishes;
     Wish[] wishes;
+    uint256 private _seed;
+    mapping(address => uint256) public lastWishAt;
 
-    constructor() {
+    event NewWish(address indexed from, uint256 timestamp, string message);
+
+    constructor() payable {
         console.log("Hey, I'm the smart contract of the wall of wishes!");
+        _seed = (block.timestamp + block.difficulty) % 100;
     }
 
-    event newWish(address indexed from, uint256 timestamp, string message);
-
     function wish(string memory _message) public {
+        require(lastWishAt[msg.sender] + 15 minutes < block.timestamp, "You can't make a wish more than once every 15 minutes!");
+        lastWishAt[msg.sender] = block.timestamp;
+
         totalWishes++;
         console.log("%s has sent a wish %s", msg.sender, _message);
 
         wishes.push(Wish(msg.sender, _message, block.timestamp));
 
-        emit newWish(msg.sender, block.timestamp, _message);
+        _seed = (_seed + block.timestamp + block.difficulty) % 100;
+        console.log("Random # generated: %d", _seed);
+        if (_seed <= 50) {
+            uint256 prizeAmount = 0.0001 ether;
+            require(prizeAmount <= address(this).balance, "You don't have enough ether to send a wish!");
 
-        uint256 priceAmount = 0.0001 ether;
-        require(priceAmount <= address(this).balance, "You don't have enough ether to send a wish!");
+            (bool success, ) = (msg.sender).call{value: prizeAmount}("");
+            require(success, "Failed to withdraw money from contract.");
 
-        (bool success, ) = (msg.sender).call{value: priceAmount}("");
+            console.log("%s has won %d ether!", msg.sender, prizeAmount);
+        }
+
+        emit NewWish(msg.sender, block.timestamp, _message);
     }
 
     function getTotalWishes() public view returns (uint256) {

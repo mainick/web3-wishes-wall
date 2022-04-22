@@ -6,7 +6,9 @@ const main = async () => {
   console.log("Account balance: ", accountBalance.toString());
 
   const wishContractFactory = await hre.ethers.getContractFactory("WishesWall");
-  const wishContract = await wishContractFactory.deploy();
+  const wishContract = await wishContractFactory.deploy({
+    value: hre.ethers.utils.parseEther("0.001"),
+  });
   await wishContract.deployed();
   console.log("WishesWall contract address: ", wishContract.address);
 };
