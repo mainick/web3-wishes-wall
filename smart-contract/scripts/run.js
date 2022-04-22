@@ -9,7 +9,9 @@ const main = async () => {
   console.log("WishesWall contract address: ", wishContract.address);
   console.log("Contract deployed by", owner.address);
 
-  contractBalance = await hre.ethers.provider.getBalance(wishContract.address);
+  let contractBalance = await hre.ethers.provider.getBalance(
+    wishContract.address
+  );
   console.log(
     "Contract balance: ",
     hre.ethers.utils.formatEther(contractBalance)
