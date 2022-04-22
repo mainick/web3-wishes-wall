@@ -85,13 +85,21 @@ const WalletAccount = () => {
         <div className="form-control mt-6">
           {walletAccount.currentAccount ? (
             <div className="account">
-              <div className="font-bold">Your account:</div>
-              <div className="text-gray-500">{walletAccount.currentAccount}</div>
+              <div className="font-bold">
+                <a
+                  href={`https://etherscan.io/address/${walletAccount.currentAccount}`}
+                  target="_blank"
+                  className="link-hover link"
+                  rel="noopener noreferrer">
+                  Your account{` `}
+                  <BiLinkExternal className="inline-block h-4 w-4 stroke-current" />
+                </a>
+              </div>
               <textarea
                 name="wishMessage"
                 value={wishMessage}
                 onChange={handleChangeWishMessage}
-                className="textarea-bordered textarea w-full"
+                className="textarea-bordered textarea my-1 w-full"
                 placeholder="Write your wish here..."
               />
               <button

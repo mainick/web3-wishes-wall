@@ -66,7 +66,7 @@ const WishesList = () => {
   if (loadingAllWishes) return <progress className="progress w-56"></progress>;
 
   return (
-    <div className="grid grid-cols-1 justify-items-center gap-6">
+    <div className="grid grid-cols-4 justify-items-center gap-6">
       {allWishes.map((wish) => (
         <WishItem key={wish.id} wish={wish} />
       ))}
