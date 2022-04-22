@@ -6,7 +6,9 @@
     "extends": [
         "eslint:recommended",
         "plugin:react/recommended",
-        "airbnb"
+        "plugin:prettier/recommended",
+        "airbnb",
+        "prettier"
     ],
     "parserOptions": {
         "ecmaFeatures": {
@@ -18,15 +20,11 @@
     "plugins": [
         "import",
         "jsx-a11y",
-        "react"
+        "react",
+        "prettier"
     ],
     "rules": {
-        "react/jsx-filename-extension": [
-            1,
-            {
-                "extensions": [".js", ".jsx"]
-            }
-        ],
+        "react/jsx-filename-extension": 0,
         "react/react-in-jsx-scope": 0,
         "react/jsx-props-no-spreading": 0,
         "react/prop-types": 0,
