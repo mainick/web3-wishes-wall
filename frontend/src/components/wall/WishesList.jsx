@@ -38,7 +38,7 @@ const WishesList = () => {
     if (wishesWallContract) {
       retrieveAllWishes();
     }
-  }, [wishesWallContract]);
+  }, []);
 
   useEffect(() => {
     const onNewWish = (from, timestamp, message) => {
@@ -63,7 +63,7 @@ const WishesList = () => {
         wishesWallContract.off('NewWish', onNewWish);
       }
     };
-  }, [wishesWallContract]);
+  }, []);
 
   if (loadingAllWishes) return <progress className="progress w-56"></progress>;
 
