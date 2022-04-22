@@ -54,7 +54,6 @@ const WalletAccount = () => {
       const wishTnx = await wishesWallContract.wish(wishMessage, {
         gasLimit: ethers.utils.parseUnits('300000', 'wei')
       });
-      console.log('Mining...', wishTnx.hash);
       setWishTnxHash(wishTnx.hash);
 
       await wishTnx.wait();

@@ -8,9 +8,9 @@ const WishItem = ({ wish }) => (
       <h2 className="card-title">{wish.timestamp.toLocaleString()}</h2>
       <p>{wish.message}</p>
       <a
-        href={`https://rinkeby.etherscan.io/tx/${wish.owner}`}
+        href={`https://etherscan.io/address/${wish.owner}`}
         target="_blank"
-        className="link-neutral link"
+        className="link-neutral link text-slate-50 hover:text-slate-100"
         rel="noopener noreferrer">
         owner
         <BiLinkExternal className="inline-block h-4 w-4 stroke-current" />

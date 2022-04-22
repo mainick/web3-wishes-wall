@@ -19,7 +19,6 @@ const WishesList = () => {
           timestamp: new Date(item.timestamp * 1000),
           message: item.message
         }));
-        console.log('wishesArray', wishesArray);
         setAllWishes(wishesArray);
       }
       setLoadingAllWishes(false);
@@ -42,7 +41,6 @@ const WishesList = () => {
 
   useEffect(() => {
     const onNewWish = (from, timestamp, message) => {
-      console.log('New wish:', from, timestamp, message);
       setAllWishes((prevWishes) => [
         ...prevWishes,
         {
