@@ -73,6 +73,8 @@ const WishesList = ({ totalWishes }) => {
       wishesWallContract.on('NewWish', onNewWish);
     }
 
+    retrieveAllWishes();
+
     return () => {
       if (wishesWallContract) {
         wishesWallContract.off('NewWish', onNewWish);
