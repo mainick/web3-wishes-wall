@@ -8,31 +8,35 @@ const WishesList = () => {
   const [allWishes, setAllWishes] = useState([]);
   const [loadingAllWishes, setLoadingAllWishes] = useState(false);
 
-  useEffect(async () => {
-    if (wishesWallContract) {
-      try {
-        setLoadingAllWishes(true);
-        const wishes = await wishesWallContract.getAllWishes();
-        if (wishes) {
-          const wishesArray = wishes.map((item) => ({
-            id: item.timestamp.toNumber(),
-            owner: item.owner,
-            timestamp: new Date(item.timestamp * 1000),
-            message: item.message
-          }));
-          console.log('wishesArray', wishesArray);
-          setAllWishes(wishesArray);
-        }
-        setLoadingAllWishes(false);
-      } catch (e) {
-        setLoadingAllWishes(false);
-        setAllWishes([]);
-        toast("I can't query the smart contract", {
-          position: toast.POSITION.TOP_RIGHT,
-          type: toast.TYPE.WARNING,
-          theme: 'light'
-        });
+  const retrieveAllWishes = async () => {
+    try {
+      setLoadingAllWishes(true);
+      const wishes = await wishesWallContract.getAllWishes();
+      if (wishes) {
+        const wishesArray = wishes.map((item) => ({
+          id: item.timestamp.toNumber(),
+          owner: item.owner,
+          timestamp: new Date(item.timestamp * 1000),
+          message: item.message
+        }));
+        console.log('wishesArray', wishesArray);
+        setAllWishes(wishesArray);
       }
+      setLoadingAllWishes(false);
+    } catch (e) {
+      setLoadingAllWishes(false);
+      setAllWishes([]);
+      toast("I can't query the smart contract", {
+        position: toast.POSITION.TOP_RIGHT,
+        type: toast.TYPE.WARNING,
+        theme: 'light'
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (wishesWallContract) {
+      retrieveAllWishes();
     }
   }, [wishesWallContract]);
 
