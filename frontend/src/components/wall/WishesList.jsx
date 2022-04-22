@@ -28,7 +28,6 @@ const WishesList = ({ totalWishes }) => {
       const wishesWallContract = new ethers.Contract(contractAddress, contractAbi, signer);
 
       const wishes = await wishesWallContract.getAllWishes();
-      console.log('wishes', wishes);
       if (wishes) {
         const wishesArray = wishes.map((item) => ({
           id: item.timestamp.toNumber(),
@@ -36,7 +35,6 @@ const WishesList = ({ totalWishes }) => {
           timestamp: new Date(item.timestamp * 1000),
           message: item.message
         }));
-        console.log('wishesArray', wishesArray);
         setAllWishes(wishesArray);
       }
       setLoadingAllWishes(false);
@@ -52,7 +50,34 @@ const WishesList = ({ totalWishes }) => {
   };
 
   useEffect(() => {
-    retrieveAllWishes();
+    let wishesWallContract;
+
+    const onNewWish = (from, timestamp, message) => {
+      console.log('New wish:', from, timestamp, message);
+      setAllWishes((prevWishes) => [
+        ...prevWishes,
+        {
+          id: timestamp.toNumber(),
+          owner: from,
+          timestamp: new Date(timestamp * 1000),
+          message
+        }
+      ]);
+    };
+
+    const { ethereum } = window;
+    if (ethereum) {
+      const provider = new ethers.providers.Web3Provider(ethereum);
+      const signer = provider.getSigner();
+      const wishesWallContract = new ethers.Contract(contractAddress, contractAbi, signer);
+      wishesWallContract.on('NewWish', onNewWish);
+    }
+
+    return () => {
+      if (wishesWallContract) {
+        wishesWallContract.off('NewWish', onNewWish);
+      }
+    };
   }, [totalWishes]);
 
   if (loadingAllWishes) return <progress className="progress w-56"></progress>;
