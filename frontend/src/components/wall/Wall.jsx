@@ -26,7 +26,7 @@ const Wall = () => {
           <WalletAccount />
         </div>
       </div>
-      {walletAccount.currentAccount && <WishesList totalWishes={walletAccount.totalWishes} />}
+      {walletAccount.currentAccount && <WishesList />}
     </>
   );
 };

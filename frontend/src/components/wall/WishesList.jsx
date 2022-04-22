@@ -4,29 +4,16 @@ import { toast } from 'react-toastify';
 import abi from '../../WishesWall.json';
 import WishItem from './WishItem';
 
-const WishesList = ({ totalWishes }) => {
+const WishesList = () => {
   const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
   const contractAbi = abi.abi;
+  let wishesWallContract = null;
   const [allWishes, setAllWishes] = useState([]);
   const [loadingAllWishes, setLoadingAllWishes] = useState(false);
 
   const retrieveAllWishes = async () => {
     try {
-      const { ethereum } = window;
-      if (!ethereum) {
-        toast('Make sure you have MetaMask!', {
-          position: toast.POSITION.TOP_RIGHT,
-          type: toast.TYPE.WARNING,
-          theme: 'light'
-        });
-        return;
-      }
-
       setLoadingAllWishes(true);
-      const provider = new ethers.providers.Web3Provider(ethereum);
-      const signer = provider.getSigner();
-      const wishesWallContract = new ethers.Contract(contractAddress, contractAbi, signer);
-
       const wishes = await wishesWallContract.getAllWishes();
       if (wishes) {
         const wishesArray = wishes.map((item) => ({
@@ -35,6 +22,7 @@ const WishesList = ({ totalWishes }) => {
           timestamp: new Date(item.timestamp * 1000),
           message: item.message
         }));
+        console.log('wishesArray', wishesArray);
         setAllWishes(wishesArray);
       }
       setLoadingAllWishes(false);
@@ -50,8 +38,32 @@ const WishesList = ({ totalWishes }) => {
   };
 
   useEffect(() => {
-    let wishesWallContract;
+    try {
+      if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        wishesWallContract = new ethers.Contract(
+          contractAddress,
+          contractAbi,
+          provider.getSigner()
+        );
+        retrieveAllWishes();
+      } else {
+        toast('Make sure you have MetaMask!', {
+          position: toast.POSITION.TOP_RIGHT,
+          type: toast.TYPE.WARNING,
+          theme: 'light'
+        });
+      }
+    } catch (error) {
+      toast(error.message, {
+        position: toast.POSITION.TOP_RIGHT,
+        type: toast.TYPE.WARNING,
+        theme: 'light'
+      });
+    }
+  }, []);
 
+  useEffect(() => {
     const onNewWish = (from, timestamp, message) => {
       console.log('New wish:', from, timestamp, message);
       setAllWishes((prevWishes) => [
@@ -65,22 +77,16 @@ const WishesList = ({ totalWishes }) => {
       ]);
     };
 
-    const { ethereum } = window;
-    if (ethereum) {
-      const provider = new ethers.providers.Web3Provider(ethereum);
-      const signer = provider.getSigner();
-      const wishesWallContract = new ethers.Contract(contractAddress, contractAbi, signer);
+    if (wishesWallContract) {
       wishesWallContract.on('NewWish', onNewWish);
     }
-
-    retrieveAllWishes();
 
     return () => {
       if (wishesWallContract) {
         wishesWallContract.off('NewWish', onNewWish);
       }
     };
-  }, [totalWishes]);
+  }, []);
 
   if (loadingAllWishes) return <progress className="progress w-56"></progress>;
 
