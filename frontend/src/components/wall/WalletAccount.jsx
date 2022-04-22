@@ -66,7 +66,9 @@ const WalletAccount = () => {
       const signer = provider.getSigner();
       const wishesWallContract = new ethers.Contract(contractAddress, contractAbi, signer);
 
-      const wishTnx = await wishesWallContract.wish(wishMessage);
+      const wishTnx = await wishesWallContract.wish(wishMessage, {
+        gasLimit: ethers.utils.parseUnits('300000', 'wei')
+      });
       console.log('Mining...', wishTnx.hash);
       setWishTnxHash(wishTnx.hash);
 
