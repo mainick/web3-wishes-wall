@@ -1,17 +1,15 @@
 import { useEffect, useMemo, useReducer } from 'react';
-import { ethers } from 'ethers';
 import { toast, ToastContainer } from 'react-toastify';
 import Like from './assets/like.svg';
 import SocialIcon from './components/SocialIcon/SocialIcon';
 import SMWishesWallContext from './contexts/SMWishesWallContext';
 import WalletAccountReducer from './reducers/WalletAccountReducer';
 import Wall from './components/wall/Wall';
-import abi from './WishesWall.json';
 import 'react-toastify/dist/ReactToastify.min.css';
+import useWishesWallContract from './hooks/useWishesWallContract';
 
 function App() {
-  const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
-  const contractAbi = abi.abi;
+  const { wishesWallContract } = useWishesWallContract();
   const [walletAccount, dispatchWalletAccount] = useReducer(WalletAccountReducer, {
     currentAccount: '',
     totalWishes: 0
@@ -23,18 +21,6 @@ function App() {
 
   const retrieveTotalWishes = async () => {
     try {
-      const { ethereum } = window;
-      if (!ethereum) {
-        toast('Make sure you have MetaMask!', {
-          position: toast.POSITION.TOP_RIGHT,
-          type: toast.TYPE.WARNING,
-          theme: 'light'
-        });
-        return;
-      }
-      const provider = new ethers.providers.Web3Provider(ethereum);
-      const signer = provider.getSigner();
-      const wishesWallContract = new ethers.Contract(contractAddress, contractAbi, signer);
       const countWishes = await wishesWallContract.getTotalWishes();
       dispatchWalletAccount({ type: 'SET_TOTAL_WISHES', payload: countWishes.toNumber() });
     } catch (error) {
@@ -64,12 +50,6 @@ function App() {
         dispatchWalletAccount({ type: 'SET_WALLET_ACCOUNT', payload: account });
 
         retrieveTotalWishes();
-      } else {
-        toast('No authorized accounts found', {
-          position: toast.POSITION.TOP_RIGHT,
-          type: toast.TYPE.WARNING,
-          theme: 'light'
-        });
       }
     } catch (error) {
       toast(error.message, {

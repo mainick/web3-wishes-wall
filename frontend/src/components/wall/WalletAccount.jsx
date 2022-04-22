@@ -1,13 +1,12 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { ethers } from 'ethers';
 import { toast } from 'react-toastify';
 import { BiLinkExternal } from 'react-icons/bi';
-import abi from '../../WishesWall.json';
 import SMWishesWallContext from '../../contexts/SMWishesWallContext';
+import useWishesWallContract from '../../hooks/useWishesWallContract';
 
 const WalletAccount = () => {
-  const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
-  const contractAbi = abi.abi;
+  const { wishesWallContract } = useWishesWallContract();
   const [walletAccount, dispatchWalletAccount] = useContext(SMWishesWallContext);
   const [loadingMining, setLoadingMining] = useState(false);
   const [wishTnxHash, setWishTnxHash] = useState('');
@@ -51,21 +50,7 @@ const WalletAccount = () => {
 
   const handleSendWish = async () => {
     try {
-      const { ethereum } = window;
-      if (!ethereum) {
-        toast('Make sure you have MetaMask!', {
-          position: toast.POSITION.TOP_RIGHT,
-          type: toast.TYPE.WARNING,
-          theme: 'light'
-        });
-        return;
-      }
-
       setLoadingMining(true);
-      const provider = new ethers.providers.Web3Provider(ethereum);
-      const signer = provider.getSigner();
-      const wishesWallContract = new ethers.Contract(contractAddress, contractAbi, signer);
-
       const wishTnx = await wishesWallContract.wish(wishMessage, {
         gasLimit: ethers.utils.parseUnits('300000', 'wei')
       });

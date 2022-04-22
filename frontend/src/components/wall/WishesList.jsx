@@ -1,13 +1,10 @@
 import { useEffect, useState } from 'react';
-import { ethers } from 'ethers';
 import { toast } from 'react-toastify';
-import abi from '../../WishesWall.json';
 import WishItem from './WishItem';
+import useWishesWallContract from '../../hooks/useWishesWallContract';
 
 const WishesList = () => {
-  const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
-  const contractAbi = abi.abi;
-  let wishesWallContract = null;
+  const { wishesWallContract } = useWishesWallContract();
   const [allWishes, setAllWishes] = useState([]);
   const [loadingAllWishes, setLoadingAllWishes] = useState(false);
 
@@ -38,28 +35,8 @@ const WishesList = () => {
   };
 
   useEffect(() => {
-    try {
-      if (window.ethereum) {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        wishesWallContract = new ethers.Contract(
-          contractAddress,
-          contractAbi,
-          provider.getSigner()
-        );
-        retrieveAllWishes();
-      } else {
-        toast('Make sure you have MetaMask!', {
-          position: toast.POSITION.TOP_RIGHT,
-          type: toast.TYPE.WARNING,
-          theme: 'light'
-        });
-      }
-    } catch (error) {
-      toast(error.message, {
-        position: toast.POSITION.TOP_RIGHT,
-        type: toast.TYPE.WARNING,
-        theme: 'light'
-      });
+    if (wishesWallContract) {
+      retrieveAllWishes();
     }
   }, []);
 
