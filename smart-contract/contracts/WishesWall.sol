@@ -22,7 +22,7 @@ contract WishesWall {
     mapping(uint32 => address) public voters;
 
     event NewWish(uint32 id, address indexed from, uint32 timestamp, string message);
-    event NewVote(address indexed from, uint32 timestamp, uint8 vote);
+    event NewVote(uint32 wishId, address indexed from, uint32 timestamp, uint8 vote);
 
     constructor() payable {
         console.log("Hey, I'm the smart contract of the wall of wishes!");
@@ -62,6 +62,7 @@ contract WishesWall {
     }
 
     function getAverageRatingOfWish(uint32 _wishId) public view returns (uint8) {
+        require(wishes[_wishId].voteCount > 0, "No votes for this wish yet!");
         return uint8(wishes[_wishId].voteSum / wishes[_wishId].voteCount);
     }
 
@@ -77,7 +78,7 @@ contract WishesWall {
 
         _seed = (_seed + block.timestamp + block.difficulty) % 100;
         console.log("Random # generated: %d", _seed);
-        if (_seed <= 50) {
+        if (_seed <= 50 && getAverageRatingOfWish(_wishId) > 3) {
             uint256 prizeAmount = 0.00001 ether;
             require(prizeAmount <= address(this).balance, "Contract don't have enough ether to send a wish!");
 
@@ -87,7 +88,7 @@ contract WishesWall {
             console.log("%s has won %d ether!", msg.sender, prizeAmount);
         }
 
-        emit NewVote(msg.sender, uint32(block.timestamp), _rate);
+        emit NewVote(_wishId, msg.sender, uint32(block.timestamp), _rate);
     }
 
     function getTotalVotes() public view returns (uint32) {

@@ -62,13 +62,28 @@ const WishesList = () => {
       ]);
     };
 
+    const onNewVote = (wishId, from, timestamp, vote) => {
+      setAllWishes((prevWishes) =>
+        prevWishes.map((wish) => {
+          if (wish.id === wishId) {
+            wish.voteSum += vote;
+            wish.voteCount += 1;
+            wish.avgRating = wish.voteCount > 0 ? Math.floor(wish.voteSum / wish.voteCount) : 0;
+          }
+          return wish;
+        })
+      );
+    };
+
     if (wishesWallContract) {
       wishesWallContract.on('NewWish', onNewWish);
+      wishesWallContract.on('NewVote', onNewVote);
     }
 
     return () => {
       if (wishesWallContract) {
         wishesWallContract.off('NewWish', onNewWish);
+        wishesWallContract.off('NewVote', onNewVote);
       }
     };
   }, []);

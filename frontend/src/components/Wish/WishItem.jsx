@@ -1,10 +1,42 @@
-import React from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { ethers } from 'ethers';
 import PropTypes from 'prop-types';
 import { BiInfoCircle, BiLinkExternal } from 'react-icons/bi';
+import useWishesWallContract from '../../hooks/useWishesWallContract';
+import { toast } from 'react-toastify';
+import SMWishesWallContext from '../../contexts/SMWishesWallContext';
 
 const WishItem = ({ wish }) => {
+  const { wishesWallContract } = useWishesWallContract();
+  const [walletAccount, dispatchWalletAccount] = useContext(SMWishesWallContext);
+  const [loadingVoteMining, setLoadingVoteMining] = useState(false);
+
   const handleVoteWish = async (wishId, rate) => {
-    console.log(`you voted ${rate} on wish ${wishId}`);
+    try {
+      setLoadingVoteMining(true);
+      const voteTnx = await wishesWallContract.vote(wishId, rate, {
+        gasLimit: ethers.utils.parseUnits('210000', 'wei')
+      });
+      await voteTnx.wait();
+
+      setLoadingVoteMining(false);
+      toast('Your vote has been registered successfully!', {
+        toastId: voteTnx.hash,
+        position: toast.POSITION.TOP_RIGHT,
+        type: toast.TYPE.SUCCESS,
+        theme: 'light'
+      });
+
+      const countVotes = await wishesWallContract.getTotalVotes();
+      dispatchWalletAccount({ type: 'SET_TOTAL_VOTES', payload: countVotes });
+    } catch (error) {
+      setLoadingVoteMining(false);
+      toast(error.message, {
+        position: toast.POSITION.TOP_RIGHT,
+        type: toast.TYPE.WARNING,
+        theme: 'light'
+      });
+    }
   };
 
   return (
@@ -35,7 +67,8 @@ const WishItem = ({ wish }) => {
                 type="radio"
                 name="wish-rating"
                 className="mask mask-heart bg-red-400"
-                checked={false}
+                checked={wish.avgRating === 1}
+                disabled={loadingVoteMining}
                 onClick={() => handleVoteWish(wish.id, 1)}
               />
               <input
@@ -43,6 +76,7 @@ const WishItem = ({ wish }) => {
                 name="wish-rating"
                 className="mask mask-heart bg-orange-400"
                 checked={wish.avgRating === 2}
+                disabled={loadingVoteMining}
                 onClick={() => handleVoteWish(wish.id, 2)}
               />
               <input
@@ -50,6 +84,7 @@ const WishItem = ({ wish }) => {
                 name="wish-rating"
                 className="mask mask-heart bg-yellow-400"
                 checked={wish.avgRating === 3}
+                disabled={loadingVoteMining}
                 onClick={() => handleVoteWish(wish.id, 3)}
               />
               <input
@@ -57,6 +92,7 @@ const WishItem = ({ wish }) => {
                 name="wish-rating"
                 className="mask mask-heart bg-lime-400"
                 checked={wish.avgRating === 4}
+                disabled={loadingVoteMining}
                 onClick={() => handleVoteWish(wish.id, 4)}
               />
               <input
@@ -64,11 +100,14 @@ const WishItem = ({ wish }) => {
                 name="wish-rating"
                 className="mask mask-heart bg-green-400"
                 checked={wish.avgRating === 5}
+                disabled={loadingVoteMining}
                 onClick={() => handleVoteWish(wish.id, 5)}
               />
             </div>
           </div>
         </div>
+
+        {loadingVoteMining && <progress className="progress progress-primary w-full" />}
       </div>
     </div>
   );
