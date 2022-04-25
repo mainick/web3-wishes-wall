@@ -55,8 +55,8 @@ const WalletAccount = () => {
         gasLimit: ethers.utils.parseUnits('300000', 'wei')
       });
       setWishTnxHash(wishTnx.hash);
-
       await wishTnx.wait();
+
       setLoadingMining(false);
       setWishTnxHash('');
       toast('Wish sent!', {
@@ -67,7 +67,7 @@ const WalletAccount = () => {
       });
 
       const countWishes = await wishesWallContract.getTotalWishes();
-      dispatchWalletAccount({ type: 'SET_TOTAL_WISHES', payload: countWishes.toNumber() });
+      dispatchWalletAccount({ type: 'SET_TOTAL_WISHES', payload: countWishes });
     } catch (error) {
       setLoadingMining(false);
       setWishTnxHash('');

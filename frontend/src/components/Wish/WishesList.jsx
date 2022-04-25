@@ -13,12 +13,22 @@ const WishesList = () => {
       setLoadingAllWishes(true);
       const wishes = await wishesWallContract.getAllWishes();
       if (wishes) {
-        const wishesArray = wishes.map((item) => ({
-          id: item.timestamp.toNumber(),
-          owner: item.owner,
-          timestamp: new Date(item.timestamp * 1000),
-          message: item.message
-        }));
+        const wishesArray = [];
+        for (let wishId = 0; wishId < wishes.length; wishId++) {
+          let avgRating =
+            wishes[wishId].voteCount > 0
+              ? await wishesWallContract.getAverageRatingOfWish(wishId)
+              : 0;
+          wishesArray.push({
+            id: wishId,
+            owner: wishes[wishId].owner,
+            timestamp: new Date(wishes[wishId].timestamp * 1000),
+            message: wishes[wishId].message,
+            voteSum: wishes[wishId].voteSum,
+            voteCount: wishes[wishId].voteCount,
+            avgRating
+          });
+        }
         setAllWishes(wishesArray);
       }
       setLoadingAllWishes(false);
@@ -40,11 +50,11 @@ const WishesList = () => {
   }, []);
 
   useEffect(() => {
-    const onNewWish = (from, timestamp, message) => {
+    const onNewWish = (id, from, timestamp, message) => {
       setAllWishes((prevWishes) => [
         ...prevWishes,
         {
-          id: timestamp.toNumber(),
+          id: id,
           owner: from,
           timestamp: new Date(timestamp * 1000),
           message
