@@ -4,7 +4,7 @@ import Like from './assets/like.svg';
 import SocialIcon from './components/SocialIcon/SocialIcon';
 import SMWishesWallContext from './contexts/SMWishesWallContext';
 import WalletAccountReducer from './reducers/WalletAccountReducer';
-import Wall from './components/wall/Wall';
+import Wall from './components/Wall/Wall';
 import 'react-toastify/dist/ReactToastify.min.css';
 import useWishesWallContract from './hooks/useWishesWallContract';
 
@@ -12,7 +12,8 @@ function App() {
   const { wishesWallContract } = useWishesWallContract();
   const [walletAccount, dispatchWalletAccount] = useReducer(WalletAccountReducer, {
     currentAccount: '',
-    totalWishes: 0
+    totalWishes: 0,
+    totalVotes: 0
   });
   const valueWalletAccountContext = useMemo(
     () => [walletAccount, dispatchWalletAccount],
@@ -22,7 +23,20 @@ function App() {
   const retrieveTotalWishes = async () => {
     try {
       const countWishes = await wishesWallContract.getTotalWishes();
-      dispatchWalletAccount({ type: 'SET_TOTAL_WISHES', payload: countWishes.toNumber() });
+      dispatchWalletAccount({ type: 'SET_TOTAL_WISHES', payload: countWishes });
+    } catch (error) {
+      toast("I can't query the smart contract", {
+        position: toast.POSITION.TOP_RIGHT,
+        type: toast.TYPE.WARNING,
+        theme: 'light'
+      });
+    }
+  };
+
+  const retrieveTotalVotes = async () => {
+    try {
+      const countVotes = await wishesWallContract.getTotalVotes();
+      dispatchWalletAccount({ type: 'SET_TOTAL_VOTES', payload: countVotes });
     } catch (error) {
       toast("I can't query the smart contract", {
         position: toast.POSITION.TOP_RIGHT,
@@ -50,6 +64,7 @@ function App() {
         dispatchWalletAccount({ type: 'SET_WALLET_ACCOUNT', payload: account });
 
         retrieveTotalWishes();
+        retrieveTotalVotes();
       }
     } catch (error) {
       toast(error.message, {

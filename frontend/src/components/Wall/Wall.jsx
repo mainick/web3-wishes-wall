@@ -2,7 +2,9 @@ import { useContext } from 'react';
 import { BsHeart } from 'react-icons/bs';
 import WalletAccount from './WalletAccount';
 import SMWishesWallContext from '../../contexts/SMWishesWallContext';
-import WishesList from './WishesList';
+import WishesList from '../Wish/WishesList';
+import WishesCountStat from '../Wish/WishesCountStat';
+import VotesCountStat from '../Vote/VotesCountStat';
 
 const Wall = () => {
   const [walletAccount] = useContext(SMWishesWallContext);
@@ -13,14 +15,10 @@ const Wall = () => {
           <div className="text-center lg:text-left">
             <h1 className="text-4xl font-bold">👋 Hey there!</h1>
             <p className="py-6">Connect your Ethereum wallet and send a special wish!</p>
+
             <div className="stats shadow">
-              <div className="stat">
-                <div className="stat-figure text-primary">
-                  <BsHeart className="stat-icon inline-block h-8 w-8 stroke-current" />
-                </div>
-                <div className="stat-title">Total Wishes Sent</div>
-                <div className="stat-value text-primary">{walletAccount.totalWishes}</div>
-              </div>
+              <WishesCountStat totalWishes={walletAccount.totalWishes} />
+              <VotesCountStat totalVotes={walletAccount.totalVotes} />
             </div>
           </div>
           <WalletAccount />
