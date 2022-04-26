@@ -66,8 +66,16 @@ const WishesList = () => {
       setAllWishes((prevWishes) =>
         prevWishes.map((wish) => {
           if (wish.id === wishId) {
-            wish.voteSum += vote;
-            wish.voteCount += 1;
+            if (wish.voteSum) {
+              wish.voteSum += vote;
+            } else {
+              wish.voteSum = vote;
+            }
+            if (wish.voteCount) {
+              wish.voteCount += 1;
+            } else {
+              wish.voteCount = 1;
+            }
             wish.avgRating = wish.voteCount > 0 ? Math.floor(wish.voteSum / wish.voteCount) : 0;
           }
           return wish;
