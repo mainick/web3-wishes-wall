@@ -118,7 +118,10 @@ WishItem.propTypes = {
     id: PropTypes.number.isRequired,
     owner: PropTypes.string.isRequired,
     timestamp: PropTypes.instanceOf(Date).isRequired,
-    message: PropTypes.string.isRequired
+    message: PropTypes.string.isRequired,
+    voteSum: PropTypes.number,
+    voteCount: PropTypes.number,
+    avgRating: PropTypes.number
   }).isRequired
 };
 
