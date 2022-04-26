@@ -19,6 +19,12 @@ const main = async () => {
     hre.ethers.utils.formatEther(contractBalance)
   );
 
+  //await wishContract.setSecAfterWhenSendNewWish(2);
+  //await wishContract.setVoteThreshold(10);
+  //await wishContract.setBonusVoteThreshold(9);
+  //await wishContract.setBonusThresholdPercent(50);
+  //await wishContract.setBonusInWei(hre.ethers.utils.parseEther("0.00002"));
+
   let wishCount;
   wishCount = await wishContract.getTotalWishes();
   console.log("Total wishes: ", wishCount);

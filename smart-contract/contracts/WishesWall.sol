@@ -3,8 +3,13 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract WishesWall {
+contract WishesWall is Ownable {
+    event NewWish(uint32 id, address indexed from, uint32 timestamp, string message);
+    event NewVote(uint32 wishId, address indexed from, uint32 timestamp, uint8 vote);
+
     struct Wish {
         address owner;
         string message;
@@ -15,22 +20,59 @@ contract WishesWall {
 
     uint32 totalWishes;
     Wish[] wishes;
-    uint256 private _seed;
     mapping(address => uint32) public lastWishAt;
 
     uint32 totalVotes;
     mapping(uint32 => address) public voters;
 
-    event NewWish(uint32 id, address indexed from, uint32 timestamp, string message);
-    event NewVote(uint32 wishId, address indexed from, uint32 timestamp, uint8 vote);
+    uint32 private _secAfterWhenSendNewWish;
+    uint8 private _voteLimitMax;
+    uint256 private _seed;
+    uint8 private _bonusThresholdPercent;
+    uint8 private _bonusVoteThreshold;
+    uint256 private _bonusInWei;
 
     constructor() payable {
         console.log("Hey, I'm the smart contract of the wall of wishes!");
-        _seed = (block.timestamp + block.difficulty) % 100;
+        _secAfterWhenSendNewWish = 900;
+        _voteLimitMax = 5;
+        _seed = random();
+        _bonusThresholdPercent = 50;
+        _bonusVoteThreshold = 3;
+        _bonusInWei = 10000000000000; // 0.00001 ether
+    }
+
+    function random() private view returns (uint256) {
+        return uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty, wishes.length))) % 100;
+    }
+
+    function setSecAfterWhenSendNewWish(uint32 _valueSet) external onlyOwner {
+        _secAfterWhenSendNewWish = _valueSet;
+    }
+
+    function setVoteThreshold(uint8 _valueSet) external onlyOwner {
+        require(_valueSet > 0 && _valueSet <= 255,"Vote threshold must be between 1 and 255");
+        _voteLimitMax = _valueSet;
+    }
+
+    function setBonusThresholdPercent(uint8 _valueSet) external onlyOwner {
+        require(_valueSet > 0 && _valueSet <= 100,"Bonus threshold must be between 1 and 100");
+        _bonusThresholdPercent = _valueSet;
+    }
+
+    function setBonusVoteThreshold(uint8 _valueSet) external onlyOwner {
+        require(_valueSet > 0 && _valueSet <= 255,"Bonus vote threshold must be between 1 and 255");
+        _bonusVoteThreshold = _valueSet;
+    }
+
+    function setBonusInWei(uint256 _valueSet) external onlyOwner {
+        require(_valueSet > 0,"Bonus must be greater than 0");
+        _bonusInWei = _valueSet;
     }
 
     function wish(string memory _message) public {
-        require(lastWishAt[msg.sender] + 15 minutes < block.timestamp, "You can't make a wish more than once every 15 minutes!");
+        string memory msgError = string(abi.encodePacked("You can't make a wish more than once every ", Strings.toString(_secAfterWhenSendNewWish), " seconds! "));
+        require(lastWishAt[msg.sender] + _secAfterWhenSendNewWish < block.timestamp, msgError);
         lastWishAt[msg.sender] = uint32(block.timestamp);
 
         uint32 wishId = totalWishes++;
@@ -54,7 +96,9 @@ contract WishesWall {
     }
 
     function getAverageRating() public view returns (uint8) {
-        uint256 sum = 0;
+        require(totalWishes > 0, "No votes yet!");
+
+        uint32 sum = 0;
         for (uint i = 0; i < totalWishes; i++) {
             sum += wishes[i].voteSum;
         }
@@ -66,8 +110,10 @@ contract WishesWall {
         return uint8(wishes[_wishId].voteSum / wishes[_wishId].voteCount);
     }
 
-    function vote(uint32 _wishId, uint8 _rate) public {
-        require(0 <= _rate && _rate <= 5, "Rate must be between 0 and 5!");
+    function vote(uint32 _wishId, uint8 _rate) public payable {
+        console.log("0 <= _rate <= %d", _voteLimitMax);
+        string memory msgError = string(abi.encodePacked("Rate must be between 0 and ", Strings.toString(_voteLimitMax), "!"));
+        require(0 <= _rate && _rate <= _voteLimitMax, msgError);
         require(voters[_wishId] != msg.sender, "You can't vote twice for the same wish!");
 
         wishes[_wishId].voteSum += _rate;
@@ -76,16 +122,16 @@ contract WishesWall {
         voters[_wishId] = msg.sender;
         console.log("%s has voted %d for wish %d", msg.sender, _rate, _wishId);
 
-        _seed = (_seed + block.timestamp + block.difficulty) % 100;
-        console.log("Random # generated: %d", _seed);
-        if (_seed <= 50 && getAverageRatingOfWish(_wishId) > 3) {
-            uint256 prizeAmount = 0.00001 ether;
-            require(prizeAmount <= address(this).balance, "Contract don't have enough ether to send a wish!");
-
-            (bool success, ) = (msg.sender).call{value: prizeAmount}("");
+        _seed = random();
+        console.log("Random # generated: %d", uint8(_seed));
+        console.log("Bonus Threshold Percent: %d", uint8(_bonusThresholdPercent));
+        console.log("Bonus Vote Threshold: %d", uint8(_bonusVoteThreshold));
+        if (uint8(_seed) <= uint8(_bonusThresholdPercent) && getAverageRatingOfWish(_wishId) > _bonusVoteThreshold) {
+            require(_bonusInWei <= address(this).balance, "Contract don't have enough ether to send a wish!");
+            (bool success, ) = (msg.sender).call{value: _bonusInWei}("");
             require(success, "Failed to withdraw money from contract.");
 
-            console.log("%s has won %d ether!", msg.sender, prizeAmount);
+            console.log("%s has won %d wei!", msg.sender, _bonusInWei);
         }
 
         emit NewVote(_wishId, msg.sender, uint32(block.timestamp), _rate);
