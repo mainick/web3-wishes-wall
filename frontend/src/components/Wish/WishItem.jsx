@@ -69,43 +69,43 @@ const WishItem = ({ wish }) => {
             <div className="rating gap-1">
               <input
                 type="radio"
-                name="wish-rating"
+                name={`wish-rating-${wish.id}`}
                 className="mask mask-heart bg-red-400"
                 checked={wish.avgRating === 1}
                 disabled={loadingVoteMining}
-                onClick={() => handleVoteWish(wish.id, 1)}
+                onChange={() => handleVoteWish(wish.id, 1)}
               />
               <input
                 type="radio"
-                name="wish-rating"
+                name={`wish-rating-${wish.id}`}
                 className="mask mask-heart bg-orange-400"
                 checked={wish.avgRating === 2}
                 disabled={loadingVoteMining}
-                onClick={() => handleVoteWish(wish.id, 2)}
+                onChange={() => handleVoteWish(wish.id, 2)}
               />
               <input
                 type="radio"
-                name="wish-rating"
+                name={`wish-rating-${wish.id}`}
                 className="mask mask-heart bg-yellow-400"
                 checked={wish.avgRating === 3}
                 disabled={loadingVoteMining}
-                onClick={() => handleVoteWish(wish.id, 3)}
+                onChange={() => handleVoteWish(wish.id, 3)}
               />
               <input
                 type="radio"
-                name="wish-rating"
+                name={`wish-rating-${wish.id}`}
                 className="mask mask-heart bg-lime-400"
                 checked={wish.avgRating === 4}
                 disabled={loadingVoteMining}
-                onClick={() => handleVoteWish(wish.id, 4)}
+                onChange={() => handleVoteWish(wish.id, 4)}
               />
               <input
                 type="radio"
-                name="wish-rating"
+                name={`wish-rating-${wish.id}`}
                 className="mask mask-heart bg-green-400"
                 checked={wish.avgRating === 5}
                 disabled={loadingVoteMining}
-                onClick={() => handleVoteWish(wish.id, 5)}
+                onChange={() => handleVoteWish(wish.id, 5)}
               />
             </div>
           </div>
