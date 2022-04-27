@@ -7,6 +7,7 @@ import WalletAccountReducer from './reducers/WalletAccountReducer';
 import Wall from './components/Wall/Wall';
 import 'react-toastify/dist/ReactToastify.min.css';
 import useWishesWallContract from './hooks/useWishesWallContract';
+import { AiFillGithub } from 'react-icons/ai';
 
 function App() {
   const { wishesWallContract } = useWishesWallContract();
@@ -84,7 +85,16 @@ function App() {
       <div className="container mx-auto py-4">
         <Wall />
 
-        <footer className="footer footer-center mt-4 bg-primary p-10 text-primary-content">
+        <footer className="footer footer-center relative mt-4 bg-primary p-10 text-primary-content">
+          <div className="absolute top-0 right-0 p-4">
+            <a
+              href="https://github.com/mainick/web3-wishes-wall"
+              target="_blank"
+              className="link-hover link tooltip tooltip-bottom hover:underline-offset-0"
+              data-tip="Repository Wishes Wall">
+              <AiFillGithub className="inline-block h-8 w-8 stroke-current" />
+            </a>
+          </div>
           <div>
             <img alt="Wishes Wall" src={Like} className="h-12 w-12 fill-current" />
             <p>
