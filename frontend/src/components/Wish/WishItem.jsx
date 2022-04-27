@@ -58,7 +58,11 @@ const WishItem = ({ wish }) => {
             <BiInfoCircle className="inline-block h-4 w-4 stroke-current text-blue-600" />
             <div>
               <h3 className="font-bold text-gray-800">Rating!</h3>
-              <div className="tooltip text-xs text-gray-800">{wish.voteCount} times</div>
+              <div
+                className="tooltip text-xs text-gray-800"
+                data-tip={`This wish was voted on ${wish.voteCount} times`}>
+                {wish.voteCount} times
+              </div>
             </div>
           </div>
           <div className="flex-none">
