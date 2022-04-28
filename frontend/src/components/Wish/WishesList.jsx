@@ -15,7 +15,8 @@ const WishesList = () => {
       if (wishes) {
         const wishesArray = [];
         for (let wishId = 0; wishId < wishes.length; wishId++) {
-          if (wishes[wishId].message.trim() === '') wishes[wishId].message = 'No message';
+          let message = wishes[wishId].message;
+          if (message.trim() === '') message = 'No message';
           let avgRating =
             wishes[wishId].voteCount > 0
               ? await wishesWallContract.getAverageRatingOfWish(wishId)
@@ -24,7 +25,7 @@ const WishesList = () => {
             id: wishId,
             owner: wishes[wishId].owner,
             timestamp: new Date(wishes[wishId].timestamp * 1000),
-            message: wishes[wishId].message,
+            message: message,
             voteSum: wishes[wishId].voteSum,
             voteCount: wishes[wishId].voteCount,
             avgRating
