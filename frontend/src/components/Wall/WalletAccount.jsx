@@ -49,29 +49,37 @@ const WalletAccount = () => {
   };
 
   const handleSendWish = async () => {
-    try {
-      setLoadingMining(true);
-      const wishTnx = await wishesWallContract.wish(wishMessage, {
-        gasLimit: ethers.utils.parseUnits('210000', 'wei')
-      });
-      setWishTnxHash(wishTnx.hash);
-      await wishTnx.wait();
+    if (wishMessage.trim() !== '') {
+      try {
+        setLoadingMining(true);
+        const wishTnx = await wishesWallContract.wish(wishMessage, {
+          gasLimit: ethers.utils.parseUnits('210000', 'wei')
+        });
+        setWishTnxHash(wishTnx.hash);
+        await wishTnx.wait();
 
-      setLoadingMining(false);
-      setWishTnxHash('');
-      toast('Wish sent!', {
-        toastId: wishTnx.hash,
-        position: toast.POSITION.TOP_RIGHT,
-        type: toast.TYPE.SUCCESS,
-        theme: 'light'
-      });
+        setLoadingMining(false);
+        setWishTnxHash('');
+        toast('Wish sent!', {
+          toastId: wishTnx.hash,
+          position: toast.POSITION.TOP_RIGHT,
+          type: toast.TYPE.SUCCESS,
+          theme: 'light'
+        });
 
-      const countWishes = await wishesWallContract.getTotalWishes();
-      dispatchWalletAccount({ type: 'SET_TOTAL_WISHES', payload: countWishes });
-    } catch (error) {
-      setLoadingMining(false);
-      setWishTnxHash('');
-      toast(error.message, {
+        const countWishes = await wishesWallContract.getTotalWishes();
+        dispatchWalletAccount({ type: 'SET_TOTAL_WISHES', payload: countWishes });
+      } catch (error) {
+        setLoadingMining(false);
+        setWishTnxHash('');
+        toast(error.message, {
+          position: toast.POSITION.TOP_RIGHT,
+          type: toast.TYPE.WARNING,
+          theme: 'light'
+        });
+      }
+    } else {
+      toast('Write your wish', {
         position: toast.POSITION.TOP_RIGHT,
         type: toast.TYPE.WARNING,
         theme: 'light'
@@ -101,6 +109,7 @@ const WalletAccount = () => {
                 onChange={handleChangeWishMessage}
                 className="textarea-bordered textarea my-1 w-full"
                 placeholder="Write your wish here..."
+                required={true}
               />
               <button
                 type="button"
