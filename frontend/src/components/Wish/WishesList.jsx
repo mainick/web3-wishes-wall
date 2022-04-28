@@ -15,6 +15,7 @@ const WishesList = () => {
       if (wishes) {
         const wishesArray = [];
         for (let wishId = 0; wishId < wishes.length; wishId++) {
+          if (wishes[wishId].message.trim() === '') continue;
           let avgRating =
             wishes[wishId].voteCount > 0
               ? await wishesWallContract.getAverageRatingOfWish(wishId)
